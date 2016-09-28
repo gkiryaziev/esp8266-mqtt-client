@@ -5,16 +5,13 @@
 
 class DHTManager {
 private:
-  float data[3];
-  DHT *dht;
-
+  DHT _dht;
+  float _data[3];
   float _lastTemperature;
   float _lastHumidity;
   float _lastHeatIndex;
-
 public:
-  DHTManager(int dhtPin, int dhtType);
-  ~DHTManager();
+  DHTManager(int pin, int type);
   float *getData();
 };
 

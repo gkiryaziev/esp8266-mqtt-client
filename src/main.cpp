@@ -10,15 +10,21 @@
 #include <PubSubClient.h>
 #include "dht_manager.h"
 
-// variables
-const char *ssid       = "ThomsonAP";
-const char *password   = "zxcasdqwe";
-const char *mqttServer = "test.mosquitto.org";
-const char *mqttID     = "qwerty123456";
-long lastMsg           = 0;
-int interval           = 5000; // 5 sec.
+// DHT
+#define DHTPIN      2    // pin D4
+#define DHTTYPE     11   // DHT11
+// WIFI and MQTT
+#define SSID        "ThomsonAP"
+#define PASSWORD    "zxcasdqwe"
+#define MQTT_SERVER "test.mosquitto.org"
+#define MQTT_ID     "qwerty123456"
+// system
+#define INTERVAL    5000 // delay 5 sec.
+#define BUFFER_SIZE 100  // message buffer
 
-char buffer[50];       // message
+// variables
+long lastMsg = 0;
+char buffer[BUFFER_SIZE];
 
 // functions
 void callback(char *topic, byte *payload, unsigned int length);
@@ -27,7 +33,7 @@ void reconnect();
 // objects
 WiFiClient wifiClient;
 PubSubClient mqttClient;
-DHTManager *dhtm;
+DHTManager dhtm(DHTPIN, DHTTYPE);
 
 void setup() {
 	// serial
@@ -36,9 +42,9 @@ void setup() {
 
 	// wifi
 	Serial.print("\nConnecting to ");
-	Serial.print(ssid);
+	Serial.print(SSID);
 
-	WiFi.begin(ssid, password);
+	WiFi.begin(SSID, PASSWORD);
 
 	while (WiFi.status() != WL_CONNECTED) {
 		delay(500);
@@ -51,11 +57,8 @@ void setup() {
 
 	// mqtt
 	mqttClient.setClient(wifiClient);
-	mqttClient.setServer(mqttServer, 1883);
+	mqttClient.setServer(MQTT_SERVER, 1883);
 	mqttClient.setCallback(callback);
-
-	// DHT manager
-	dhtm = new DHTManager(2, 11); // D4, DHT11
 }
 
 void loop() {
@@ -66,12 +69,12 @@ void loop() {
 
 	// get data and publish
 	long now = millis();
-	if (now - lastMsg > interval) {
+	if (now - lastMsg > INTERVAL) {
 		lastMsg = now;
 
 		// get DHT data and publish
-		float *data = dhtm->getData();
-		snprintf(buffer, 50, "%s;%s;%s",
+		float *data = dhtm.getData();
+		snprintf(buffer, BUFFER_SIZE, "%s;%s;%s",
 	    String(data[0], 2).c_str(),
 	    String(data[1], 2).c_str(),
 	    String(data[2], 2).c_str()
@@ -88,7 +91,7 @@ void reconnect() {
 	while (!mqttClient.connected()) {
 		Serial.print("\nAttempting MQTT connection... ");
 		// Attempt to connect
-		if (mqttClient.connect(mqttID)) {
+		if (mqttClient.connect(MQTT_ID)) {
 			Serial.println("connected");
 
 			// publish
