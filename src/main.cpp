@@ -16,11 +16,11 @@
 // WIFI and MQTT
 #define SSID        "ThomsonAP"
 #define PASSWORD    "zxcasdqwe"
-#define MQTT_SERVER "test.mosquitto.org"
+#define MQTT_SERVER "broker.hivemq.com"
 #define MQTT_ID     "qwerty123456"
 // system
 #define INTERVAL    5000 // delay 5 sec.
-#define BUFFER_SIZE 100  // message buffer
+#define BUFFER_SIZE 50  // message buffer
 
 // variables
 long lastMsg = 0;
@@ -34,6 +34,9 @@ void reconnect();
 WiFiClient wifiClient;
 PubSubClient mqttClient;
 DHTManager dhtm(DHTPIN, DHTTYPE);
+
+// structures
+DHTManager::DHTData dhtData;
 
 void setup() {
 	// serial
@@ -73,11 +76,11 @@ void loop() {
 		lastMsg = now;
 
 		// get DHT data and publish
-		float *data = dhtm.getData();
+		dhtm.getData(dhtData);
 		snprintf(buffer, BUFFER_SIZE, "%s;%s;%s",
-	    String(data[0], 2).c_str(),
-	    String(data[1], 2).c_str(),
-	    String(data[2], 2).c_str()
+	    String(dhtData.temperature, 2).c_str(),
+	    String(dhtData.humidity, 2).c_str(),
+	    String(dhtData.heatIndex, 2).c_str()
 	  );
 		mqttClient.publish("EL/ROOM/DATA", buffer);
 

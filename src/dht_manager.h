@@ -6,13 +6,17 @@
 class DHTManager {
 private:
   DHT _dht;
-  float _data[3];
   float _lastTemperature;
   float _lastHumidity;
   float _lastHeatIndex;
 public:
+  struct DHTData {
+    float temperature;
+    float humidity;
+    float heatIndex;
+  };
   DHTManager(int pin, int type);
-  float *getData();
+  void getData(DHTData &data);
 };
 
 #endif

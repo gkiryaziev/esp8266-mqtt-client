@@ -7,30 +7,25 @@ DHTManager::DHTManager(int pin, int type) : _dht(pin, type) {
   _dht.begin();
 }
 
-float *DHTManager::getData() {
+void DHTManager::getData(DHTData &data) {
+
   // get data
   float temperature = _dht.readTemperature(false, false);
   float humidity = _dht.readHumidity(false);
 
   // check data
   if (isnan(temperature) || isnan(humidity)) {
-    _data[0] = _lastTemperature;
-    _data[1] = _lastHumidity;
-    _data[2] = _lastHeatIndex;
-    return _data;
+    data.temperature = _lastTemperature;
+    data.humidity = _lastHumidity;
+    data.heatIndex = _lastHeatIndex;
+    return;
   }
 
   // compute heat index
-  float heatIndex = _dht.computeHeatIndex(temperature, humidity, false); // Celsius
-
-  _data[0] = temperature;
-  _data[1] = humidity;
-  _data[2] = heatIndex;
+  float heatIndex = _dht.computeHeatIndex(temperature, humidity, false);
 
   // save last data
-  _lastTemperature = temperature;
-  _lastHumidity = humidity;
-  _lastHeatIndex = heatIndex;
-
-  return _data;
+  data.temperature = _lastTemperature = temperature;
+  data.humidity = _lastHumidity = humidity;
+  data.heatIndex = _lastHeatIndex = heatIndex;
 }
