@@ -7,7 +7,7 @@ DHTManager::DHTManager(int pin, int type) : _dht(pin, type) {
   _dht.begin();
 }
 
-void DHTManager::getData(DHTData &data) {
+void DHTManager::getData(DHTData &data, bool isExternalTemperature, float externalTemperature) {
 
   // get data
   float temperature = _dht.readTemperature(false, false);
@@ -22,7 +22,12 @@ void DHTManager::getData(DHTData &data) {
   }
 
   // compute heat index
-  float heatIndex = _dht.computeHeatIndex(temperature, humidity, false);
+  float heatIndex = 0;
+  if (isExternalTemperature) {
+    heatIndex = _dht.computeHeatIndex(externalTemperature, humidity, false);
+  } else {
+    heatIndex = _dht.computeHeatIndex(temperature, humidity, false);
+  }
 
   // save last data
   data.temperature = _lastTemperature = temperature;

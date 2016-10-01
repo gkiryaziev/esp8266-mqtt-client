@@ -16,7 +16,7 @@ public:
     float heatIndex;
   };
   DHTManager(int pin, int type);
-  void getData(DHTData &data);
+  void getData(DHTData &data, bool isExternalTemperature = false, float externalTemperature = 1.0);
 };
 
 #endif
