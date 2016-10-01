@@ -8,3 +8,10 @@ This MQTT client written for [ESP8266 NodeMCU](http://nodemcu.com/index_en.html)
 - 2. [DHT sensor library](https://github.com/adafruit/DHT-sensor-library)
 - 3. [Adafruit BMP280 Library](https://github.com/adafruit/Adafruit_BMP280_Library)
 - 4. [Adafruit Unified Sensor](https://github.com/adafruit/Adafruit_Sensor)
+
+## Topics
+```
+EL/ROOM/BMP - BMP data    {temperature;pressure;altitude}
+EL/ROOM/DHT - DHT data    {temperature;humidity;heatIndex}
+EL/CPU/HEAP - free heap
+```
