@@ -1,9 +1,9 @@
 /*
-26.09.2016 by Admin :-)
+	26.09.2016 by Admin :-)
 
-EL/ROOM/BMP   - BMP data    {temperature;pressure;altitude}
-EL/ROOM/DHT   - DHT data    {temperature;humidity;heatIndex}
-EL/CPU/SYSTEM - system data {freeHeap;vcc}
+	EL/ROOM/BMP   - BMP data    {temperature;pressure;altitude}
+	EL/ROOM/DHT   - DHT data    {temperature;humidity;heatIndex}
+	EL/CPU/SYSTEM - system data {freeHeap;vcc}
 */
 
 #include <Arduino.h>
@@ -29,16 +29,17 @@ ADC_MODE(ADC_VCC);		// internal ADC
 #define MQTT_ID       "qwerty123456"
 
 // intervals
-const int amountOfIntervals                      = 2;
-unsigned long previousMillis[amountOfIntervals]  = {0, 0};
+const int amountOfIntervals                      = 3;
+unsigned long previousMillis[amountOfIntervals]  = {0, 0, 0};
 unsigned long currentMillis                      = 0;
-int intervals[amountOfIntervals]                 = {10000, 30000};
+int intervals[amountOfIntervals]                 = {30000, 300000, 900000}; // 30s., 5m. 15m.
 
 // functions
 void callback(char *topic, byte *payload, unsigned int length);
 void reconnect();
 void mqttPublish();
 void httpPost();
+void httpPostSystem();
 
 // network
 WiFiClient wifiClient;
@@ -95,12 +96,9 @@ void loop() {
 	currentMillis = millis();
 	for(int i=0; i < amountOfIntervals; i++) {
 		if ((unsigned long)(currentMillis - previousMillis[i]) >= intervals[i]) {
-			if(i==0) {
-				mqttPublish();
-			}
-			if(i==1) {
-				httpPost();
-			}
+			if(i==0) { mqttPublish();	}
+			if(i==1) { httpPost();	}
+			if(i==2) { httpPostSystem(); }
 			previousMillis[i] = currentMillis;
 		}
 	}
@@ -172,9 +170,11 @@ void httpPost() {
 									"&pressure=" + String(bmpData.pressure, 2) +
 									"&altitude=" + String(bmpData.altitude, 2);
 	httpm.POST("http://iot-gkdevmaster.rhcloud.com/api/v1/bmp280", bmp280);
+}
 
-	// // system
-	// String sys = "free_heap=" + String(ESP.getFreeHeap()) +
-	// 						 "&vcc=" + String(ESP.getVcc() / 1024.0, 2);
-	// httpm.POST("http://iot-gkdevmaster.rhcloud.com/api/v1/system", sys);
+void httpPostSystem() {
+	// system
+	String sys = "free_heap=" + String(ESP.getFreeHeap()) +
+							 "&vcc=" + String(ESP.getVcc() / 1024.0, 2);
+	httpm.POST("http://iot-gkdevmaster.rhcloud.com/api/v1/system", sys);
 }
