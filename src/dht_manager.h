@@ -6,9 +6,6 @@
 class DHTManager {
 private:
   DHT _dht;
-  float _lastTemperature;
-  float _lastHumidity;
-  float _lastHeatIndex;
 public:
   struct DHTData {
     float temperature;
@@ -16,7 +13,7 @@ public:
     float heatIndex;
   };
   DHTManager(int pin, int type);
-  void getData(DHTData &data, bool isExternalTemperature = false, float externalTemperature = 1.0);
+  bool getData(DHTData &data, bool isExternalTemperature = false, float externalTemperature = 1.0);
 };
 
 #endif
