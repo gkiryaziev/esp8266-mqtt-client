@@ -27,12 +27,15 @@ ADC_MODE(ADC_VCC);		// internal ADC
 #define PASSWORD      "zxcasdqwe"
 #define MQTT_SERVER   "broker.hivemq.com"
 #define MQTT_ID       "qwerty123456"
+// time
+#define ONE_SECOND 1000
+#define ONE_MINUTE 60000
 
 // intervals
 const int amountOfIntervals                      = 3;
 unsigned long previousMillis[amountOfIntervals]  = {0, 0, 0};
 unsigned long currentMillis                      = 0;
-int intervals[amountOfIntervals]                 = {30000, 300000, 900000}; // 30s., 5m. 15m.
+int intervals[amountOfIntervals]                 = {30 * ONE_SECOND, 5 * ONE_MINUTE, 15 * ONE_MINUTE};
 
 // functions
 void callback(char *topic, byte *payload, unsigned int length);
@@ -66,7 +69,8 @@ void setup() {
 	}
 
 	// wifi
-	Serial.print("\nConnecting to ");
+        Serial.println("\n--- WiFi ---");
+	Serial.print("Connecting to ");
 	Serial.print(SSID);
 
 	WiFi.begin(SSID, PASSWORD);
@@ -79,6 +83,7 @@ void setup() {
 	Serial.println("\nWiFi connected.");
 	Serial.print("IP address: ");
 	Serial.print(WiFi.localIP());
+        Serial.println();
 
 	// mqtt
 	mqttClient.setClient(wifiClient);
@@ -94,7 +99,7 @@ void loop() {
 
 	// get time and run intervals
 	currentMillis = millis();
-	for(int i=0; i < amountOfIntervals; i++) {
+	for(int i = 0; i < amountOfIntervals; i++) {
 		if ((unsigned long)(currentMillis - previousMillis[i]) >= intervals[i]) {
 			if(i==0) { mqttPublish();	}
 			if(i==1) { httpPost();	}
